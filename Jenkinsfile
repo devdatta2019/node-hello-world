@@ -45,7 +45,7 @@ pipeline {
 
     stage('Compile') {
       steps {
-        withMaven(maven: 'maven-3', globalMavenSettingsConfig: 'mss-mvn-global-settings', options: [ artifactsPublisher(disabled: true) ]) {
+        withMaven {
           sh "mvn clean compile"
         }
       }
