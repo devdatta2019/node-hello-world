@@ -10,6 +10,7 @@ podTemplate(containers: [
         command: 'sleep', 
         args: '30d'
         ),
+    ])    
 
 
 
