@@ -44,35 +44,7 @@ pipeline {
     
 
 
-    stage('Set Full Version') {
-      steps {
-        script {
-          withMaven(maven: 'maven-3', globalMavenSettingsConfig: 'mss-mvn-global-settings', options: [ artifactsPublisher(disabled: true) ]) {
-            version = sh(script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout | tail -n1 | sed "s/[^0-9.]*\\([0-9.]*\\).*/\\1/"', returnStdout: true).trim()
-
-            if (env.TAG_NAME) {
-              if (!env.TAG_NAME.contains(version)) {
-                error "Git tag '${env.TAG_NAME}' does not match build version '${version}'"
-              }
-
-              // Format: <major>.<minor>.<patch>
-              fullVersion = version
-              chartVersion = version
-            } else {
-              // Format: <major>.<minor>.<patch>-<branch>.<commit hash>
-              def branch_short = env.GIT_BRANCH.replaceAll("[^a-zA-Z0-9 ]+","").toLowerCase().take(64)
-              fullVersion = "${version}-${branch_short}.${env.GIT_COMMIT[0..7]}"
-              chartVersion = "${version}-${branch_short}";
-            }
-
-
-            sh "mvn versions:set -DnewVersion=${fullVersion}"
-            echo "Updated pom.xml with new version:"
-            sh 'cat pom.xml'
-          }
-        }
-      }
-    }
+   
 
     stage('Compile') {
       steps {
