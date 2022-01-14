@@ -3,6 +3,17 @@ def imageTag
 def version
 def fullVersion
 def chartVersion
+podTemplate(containers: [
+    containerTemplate(
+        name: 'maven', 
+        image: 'maven:3.8.1-jdk-8', 
+        command: 'sleep', 
+        args: '30d'
+        ),
+
+
+
+
 pipeline {
   agent any
 
