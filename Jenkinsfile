@@ -41,65 +41,7 @@ pipeline {
 
 
 
-    stage('Generator Version Update Check') {
-      steps {
-        script {
-          warnError('Generator Last Run Version is Outdated') {
-            withCredentials([usernamePassword(credentialsId: 'mss-artifactory-credentials', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-              sh '''#!/bin/bash
-                mkdir -p yo_update
-                cd yo_update
-                npm init --force > /dev/null
-                npm config set @mss:registry https://na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:_password="$(printf ${ARTIFACTORY_PASSWORD} | base64)"  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:username="${ARTIFACTORY_USERNAME}"  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:email="${ARTIFACTORY_USERNAME}"  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:always-auth=true  --userconfig ./.npmrc
-                npm install yo @mss/generator-devsecops > /dev/null
-                # Workaround: https://github.com/yeoman/yo/issues/348#issuecomment-477856306
-                sed -i -e '/rootCheck/d' node_modules/yo/lib/cli.js
-                node_modules/yo/lib/cli.js @mss/devsecops --ci
-                RV=$?
-                cd ..
-                rm -rf yo_update
-                exit $RV
-              '''
-            }
-          }
-        }
-      }
-    }
-
-
-    stage('Set Full Version') {
-      steps {
-        script {
-          withMaven(maven: 'maven-3', globalMavenSettingsConfig: 'mss-mvn-global-settings', options: [ artifactsPublisher(disabled: true) ]) {
-            version = sh(script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout | tail -n1 | sed "s/[^0-9.]*\\([0-9.]*\\).*/\\1/"', returnStdout: true).trim()
-
-            if (env.TAG_NAME) {
-              if (!env.TAG_NAME.contains(version)) {
-                error "Git tag '${env.TAG_NAME}' does not match build version '${version}'"
-              }
-
-              // Format: <major>.<minor>.<patch>
-              fullVersion = version
-              chartVersion = version
-            } else {
-              // Format: <major>.<minor>.<patch>-<branch>.<commit hash>
-              def branch_short = env.GIT_BRANCH.replaceAll("[^a-zA-Z0-9 ]+","").toLowerCase().take(64)
-              fullVersion = "${version}-${branch_short}.${env.GIT_COMMIT[0..7]}"
-              chartVersion = "${version}-${branch_short}";
-            }
-
-
-            sh "mvn versions:set -DnewVersion=${fullVersion}"
-            echo "Updated pom.xml with new version:"
-            sh 'cat pom.xml'
-          }
-        }
-      }
-    }
+    
 
     stage('Compile') {
       steps {
