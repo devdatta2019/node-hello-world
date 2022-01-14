@@ -41,34 +41,7 @@ pipeline {
 
 
 
-    stage('Generator Version Update Check') {
-      steps {
-        script {
-          warnError('Generator Last Run Version is Outdated') {
-            withCredentials([usernamePassword(credentialsId: 'mss-artifactory-credentials', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-              sh '''#!/bin/bash
-                mkdir -p yo_update
-                cd yo_update
-                npm init --force > /dev/null
-                npm config set @mss:registry https://na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:_password="$(printf ${ARTIFACTORY_PASSWORD} | base64)"  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:username="${ARTIFACTORY_USERNAME}"  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:email="${ARTIFACTORY_USERNAME}"  --userconfig ./.npmrc
-                npm config set //na.artifactory.swg-devops.com/artifactory/api/npm/mss-npm/:always-auth=true  --userconfig ./.npmrc
-                npm install yo @mss/generator-devsecops > /dev/null
-                # Workaround: https://github.com/yeoman/yo/issues/348#issuecomment-477856306
-                sed -i -e '/rootCheck/d' node_modules/yo/lib/cli.js
-                node_modules/yo/lib/cli.js @mss/devsecops --ci
-                RV=$?
-                cd ..
-                rm -rf yo_update
-                exit $RV
-              '''
-            }
-          }
-        }
-      }
-    }
+    
 
 
     stage('Set Full Version') {
