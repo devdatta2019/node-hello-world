@@ -5,11 +5,10 @@ def fullVersion
 def chartVersion
 pipeline {
   agent any
-  tools { 
-       'Maven '3.8.4'
-        }
-  
 
+  options {
+    buildDiscarder(logRotator(daysToKeepStr: '7', artifactDaysToKeepStr: '7'))
+  }
 
 
 
