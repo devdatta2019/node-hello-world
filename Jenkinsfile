@@ -1,7 +1,3 @@
-// Example declarative pipeline that utilizes the Prisma Cloud Compute plugin.
-// You can run as is this pipeline as is.
-// Commented-out stages are included as examples.
-
 pipeline {
     agent any
     environment {
@@ -11,9 +7,12 @@ pipeline {
     }
 
     stages{
-         stage('Clone repository') {
+        stage('Clone repository') {
+              steps {
             checkout scm
          }
+        }
+    }
 
         stage('Build image') {
             steps {
@@ -72,4 +71,4 @@ pipeline {
             prismaCloudPublish resultsFilePattern: 'prisma_cloud_scan_results.json'
         }
     }
-}
+
