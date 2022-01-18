@@ -17,6 +17,7 @@ pipeline {
 
         stage('Build image') {
             steps {
+                agent docker
                 // Remove the line below if you intend to checkout from a repository
                 sh 'echo "FROM ubuntu:18.04\nLABEL env=dev" > Dockerfile'
                 script {
