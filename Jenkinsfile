@@ -67,10 +67,5 @@ pipeline {
         // }
     }
 
-    post {
-        always {
-            // Always publish scan results, regardless of 
-            prismaCloudPublish resultsFilePattern: 'prisma_cloud_scan_results.json'
-        }
-    }
+    
 }
