@@ -1,3 +1,7 @@
+// Example declarative pipeline that utilizes the Prisma Cloud Compute plugin.
+// You can run as is this pipeline as is.
+// Commented-out stages are included as examples.
+
 pipeline {
     agent any
     environment {
@@ -7,16 +11,13 @@ pipeline {
     }
 
     stages{
-        stage('Clone repository') {
-              steps {
-            checkout scm
-         }
-        }
-    }
+        // stage('Clone repository') {
+        //     checkout scm
+        // }
 
         stage('Build image') {
             steps {
-                 
+                // Remove the line below if you intend to checkout from a repository
                 sh 'echo "FROM ubuntu:18.04\nLABEL env=dev" > Dockerfile'
                 script {
                     docker.withServer("${env.DOCKER_ADDR}") {
@@ -28,7 +29,7 @@ pipeline {
 
         stage('Scan image') {
             steps {
-                 
+                // Scan policy is managed in the Compute Console
                 prismaCloudScanImage ca: '',
                     cert: '',
                     dockerAddress: "${env.DOCKER_ADDR}",
@@ -44,7 +45,7 @@ pipeline {
 
         stage('Test image') {
             steps {
-                
+                //Ideally, we would run a test framework against our image.
                 script {
                     docker.withServer("${env.DOCKER_ADDR}") {
                         image.inside {
@@ -71,4 +72,4 @@ pipeline {
             prismaCloudPublish resultsFilePattern: 'prisma_cloud_scan_results.json'
         }
     }
-
+}
