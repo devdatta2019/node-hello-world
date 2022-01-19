@@ -12,7 +12,7 @@ podTemplate(containers: [
 
     node(POD_LABEL) {
         stage('Get a Maven project') {
-            git 'https://github.com/devopscicd17/SampleWebApp.git'
+            checkout scm
             container('maven') {
                 stage('Build a Maven project') {
                     sh '''
